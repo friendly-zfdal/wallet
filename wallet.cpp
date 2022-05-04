@@ -61,9 +61,9 @@ int main(){
    client->add_account("21312324568", 2);
    client->add_account("21312324569", 3);
 
-   client->save_account();
+   client->save_user();
 
-   client->load_account("test");
+   client->load_user("test");
 
    
    Card* sber = new Card("12314", client, 12, "12.12.2008", 2000);

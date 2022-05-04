@@ -15,6 +15,7 @@ int Dictionaries::addBank(string bankName) {
 	// need to check if this command override file, because it have to
 	bankJson << banks;
 	bankJson.close();
+	return 1;
 }
 
 int Dictionaries::addCurrency(string Currency, double value) {
