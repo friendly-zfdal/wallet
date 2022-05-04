@@ -6,6 +6,8 @@
 #include "User.h"
 
 
+
+
 #define FILENAME "C:\\wallet.txt"
 
  
@@ -59,10 +61,9 @@ int main(){
    client->add_account("21312324568", 2);
    client->add_account("21312324569", 3);
 
-
-
-
    client->save_account();
+
+   client->load_account("test");
 
    
    Card* sber = new Card("12314", client, 12, "12.12.2008", 2000);

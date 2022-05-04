@@ -1,6 +1,13 @@
 #pragma once
 #include <string>
+#include <map>
 #include <iostream>
+#include <fstream>
+#include "json.hpp"
+#include "User.h"
+#include "Dictionaries.h"
+using json = nlohmann::json;
+#define userTrans "UserTransactions.json"
 
 using namespace std;
 
@@ -12,13 +19,17 @@ class Transaction
 	double amount;
 	string category;
 	string comment;
+	string output_acc;
+	string output_acc_type;
+	string input_acc;
+	string input_acc_type;
 public:
-	Transaction(string date, int type, double amount, string category, string comment);
+	Transaction(User*);
 	~Transaction();
-	int CardAddTrans(int card_id, double value);
-	int CardDecTrans(int card_id, double value);
-	int StockAddTrans();
-	int StockDecTrans();
+	//int CardAddTrans(int card_id, double value);
+	//int CardDecTrans(int card_id, double value);
+	//int StockAddTrans();
+	//int StockDecTrans();
 	
 
 
