@@ -1,1 +1,9 @@
-/Wallet
+**.vcxproj*
+**.tlog
+**.obj
+**.log
+**.pdb
+**.exe*
+**.idb
+**/.vs
+**.ilk
