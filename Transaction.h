@@ -6,6 +6,7 @@
 #include "json.hpp"
 #include "User.h"
 #include "Dictionaries.h"
+#include "Card.h"
 using json = nlohmann::json;
 #define userTrans "UserTransactions.json"
 
@@ -26,10 +27,7 @@ class Transaction
 public:
 	Transaction(User*);
 	~Transaction();
-	//int CardAddTrans(int card_id, double value);
-	//int CardDecTrans(int card_id, double value);
-	//int StockAddTrans();
-	//int StockDecTrans();
+
 	
 
 

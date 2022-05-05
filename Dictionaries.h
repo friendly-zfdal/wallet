@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include "json.hpp"
+
 using json = nlohmann::json;
 
 using namespace std;
@@ -12,17 +13,21 @@ using namespace std;
 class Dictionaries
 {
 private:
-	map<string, int> banks;
+	static map<string, int> bank;
 	// $ equals to 1, all other currencies = x * 1$ (current exchange rate against the dollar)
-	map<string, double> currencies;
-	map<string, int> dep_type;
+	static map<string, double> currencies;
+	static map<string, int> dep_type;
 public:
-	static map<string, int>* getBanks();
-	static map<string, double>* getCurrencies();
-	static map<string, int>* get_depTypes();
+	static void depTypesInit();
 	static int addBank(string);
 	static int addCurrency(string, double);
 	static int add_depTypes(string);
-	static string getDepType(int);
+	static map<string, int>* getBanks();
+	static map<string, double>* getCurrencies();
+	static map<string, int>* get_depTypes();
+	static string getDepType(int type);
+
+
+
 };
 

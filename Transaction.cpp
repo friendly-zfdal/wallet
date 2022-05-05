@@ -5,10 +5,13 @@ Transaction::Transaction(User* current_user) {
 	std::fstream transactionsJson;
 	transactionsJson.open(userTrans);
 	json userTransactions;
-	transactionsJson >> userTransactions;
-	if (userTransactions.empty()) {
+	if (transactionsJson.peek() == std::ifstream::traits_type::eof()) {
 		userTransactions["counter"] = 0;
 	}
+	else {
+		transactionsJson >> userTransactions;
+	}
+	transactionsJson.close();
 	
 	cout << "From whose account was transaction initiated?\n1) Your account\n2) Another User's account" << endl;
 	string answer;
@@ -16,17 +19,19 @@ Transaction::Transaction(User* current_user) {
 	int counter;
 	//if the output account of the transaction is current user's account then ask to select the correct one
 	if (answer == "1") {
-		map<string, int>::iterator it;
+		
+
 		counter = 1;
 		cout << "Select one of your accounts:" << endl;
-		for (it = current_user->get_accounts().begin(); it != current_user->get_accounts().begin(); it++) {
-			cout << counter << ") " << it->first << " - " << Dictionaries::getDepType(it->second) << endl;
+		for (auto it = current_user->get_accounts()->begin(); it != current_user->get_accounts()->end(); it++) {
+			cout << counter << ") " << (*it)->card_id << " - " << Dictionaries::getDepType((*it)->dep_type) << endl;
+			counter++;
 		}
 		cin >> answer;
-		it = current_user->get_accounts().begin();
-		for (int i = 0; i < std::stoi(answer); i++) { it++;}
-		 this->output_acc=it->first;
-		 this->output_acc_type = it->second;
+		auto it = current_user->get_accounts()->begin();
+		for (int i = 1; i < std::stoi(answer); i++) { ++it;}
+		 this->output_acc= (*it)->card_id;
+		 this->output_acc_type = (*it)->dep_type;
 	}
 
 	//else to write it manually
@@ -37,11 +42,11 @@ Transaction::Transaction(User* current_user) {
 		counter = 1;
 		cout << "\nand select type of the account:"<<endl;
 		map<string, int>::iterator it;
-		map<string, int>* types = Dictionaries::get_depTypes();
-		for (it = (*types).begin(); it != (*types).end(); it++) {
-			//*dep_type_num*) *dep_type_name*
-			cout << it->second << ") " << it->first << endl;
-		}
+		//map<string, int>* types = Dictionaries::get_depTypes();
+		//for (it = (*types).begin(); it != (*types).end(); it++) {
+		//	//*dep_type_num*) *dep_type_name*
+		//	cout << it->second << ") " << it->first << endl;
+		//}
 		cin >> answer;
 		this->output_acc_type = answer;
 	}
@@ -55,20 +60,22 @@ Transaction::Transaction(User* current_user) {
 	cin >> answer;
 	//if the output account of the transaction is current user's account then ask to select the correct one
 	if (answer == "1") {
-		map<string, int>::iterator it;
+
+
 		counter = 1;
 		cout << "Select one of your accounts:" << endl;
-		for (it = current_user->get_accounts().begin(); it != current_user->get_accounts().begin(); it++) {
-			cout << counter << ") " << it->first << " - " << Dictionaries::getDepType(it->second) << endl;
+		for (auto it = current_user->get_accounts()->begin(); it != current_user->get_accounts()->end(); it++) {
+			cout << counter << ") " << (*it)->card_id << " - " << Dictionaries::getDepType((*it)->dep_type) << endl;
+			counter++;
 		}
 		cin >> answer;
-		it = current_user->get_accounts().begin();
-		for (int i = 0; i < std::stoi(answer); i++) { it++; }
-		this->input_acc = it->first;
-		this->input_acc_type = it->second;
+		auto it = current_user->get_accounts()->begin();
+		for (int i = 1; i < std::stoi(answer); i++) { it++; }
+		this->input_acc = (*it)->card_id;
+		this->input_acc_type = (*it)->dep_type;
 	}
 
-	//else to write it manually
+	////else to write it manually
 	else {
 		cout << "Please, enter transcation's output account manually:" << endl;
 		cin >> answer;
@@ -86,7 +93,7 @@ Transaction::Transaction(User* current_user) {
 	}
 
 	//category selection plug
-	cout << "Select category of the transaction";
+	cout << "Select category of the transaction:";
 	
 	cin >> answer;
 	this->category = answer;
@@ -96,20 +103,46 @@ Transaction::Transaction(User* current_user) {
 	this->comment = answer;
 
 	if (current_user->check_account(this->input_acc)) {
-		//plug
-		//we should increase money value on one of the current user's accounts 
+	
+		for (auto it = current_user->get_accounts()->begin(); it != current_user->get_accounts()->end(); it++) {
+			if ((*it)->card_id == input_acc) {
+				(*it)->money_value += amount;
+				break;
+			}
+		}
 	}
 
 	if (current_user->check_account(this->output_acc)) {
-		//plug
-		//we should decrease money value on one of the current user's accounts
+
+		for (auto it = current_user->get_accounts()->begin(); it != current_user->get_accounts()->end(); it++) {
+			if ((*it)->card_id == output_acc) {
+				(*it)->money_value -= amount;
+				break;
+			}
+		}
 	}
 
 
-		
+	//make fun for date	
 	this->date = date;
 	this->type = type;
 	this->amount = amount;
 	this->category = category;
 	this->comment=comment;
+	std::ofstream test;
+	test.open(userTrans);
+	userTransactions[to_string(userTransactions["counter"])]["date"] = this->date;
+	userTransactions[to_string(userTransactions["counter"])]["amount"] = this->amount;
+	userTransactions[to_string(userTransactions["counter"])]["category"] = this->category;
+	userTransactions[to_string(userTransactions["counter"])]["comment"] = this->comment;
+	userTransactions[to_string(userTransactions["counter"])]["output_acc"] = this->output_acc;
+	userTransactions[to_string(userTransactions["counter"])]["output_acc"] = this->output_acc_type;
+	userTransactions[to_string(userTransactions["counter"])]["input_acc"] = this->input_acc;
+	userTransactions[to_string(userTransactions["counter"])]["input_acc_type"] = this->input_acc_type;
+	userTransactions["counter"] =userTransactions["counter"]+1;
+	test << userTransactions;
+	test.close();
+
+
+	
 }
