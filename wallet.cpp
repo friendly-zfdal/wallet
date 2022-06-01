@@ -1,34 +1,38 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include "Card.h"
-#include "User.h"
-#include "Transaction.h"
+#include "Wallet.h"
+User* Wallet::current_user;
+int Wallet::user_counter;
+
+Wallet::Wallet() {
+	ifstream settings_f;
+	settings_f.open(settings_file);
+	if (settings_f.peek() == std::ifstream::traits_type::eof()) {
+		Wallet::user_counter = 0;
+	}
+}
+int Wallet::save_wallet() {
+	json settings;
+	settings["last_login"] = current_user->get_login();
+	settings["user_counter"] = user_counter;
+	ofstream settings_f;
+	settings_f.open(settings_file);
+	settings_f << settings;
+	settings_f.close();
+	return 0;
+}
 
 
 
 
 
-
-
-int main(){
-    User* client = new User("1234", "Trash", "12.04.2002");
-    client->add_account("124354235", 1233, "12.04.1999", 12, 0);
-    client->add_account("124354236", 1233, "12.04.1999", 12, 1);
-    client->add_account("124354237", 1233, "12.04.1999", 12, 2);
-    client->add_account("124354238", 1233, "12.04.1999", 12, 3);
-    client->save_user();
-    User* same_client = User::load_user("user.json");
-    Transaction* test = new Transaction(same_client);
-    Transaction* test1 = new Transaction(same_client);
-
-
-
-
-
-
-
-
-//myW.diplay()
-    return 0;
-} 
+//int main(){
+//    Dictionaries::cat_init();
+//
+//
+//
+//
+//
+//
+//
+////myW.diplay()
+//    return 0;
+//} 

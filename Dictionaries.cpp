@@ -1,26 +1,68 @@
 #include "Dictionaries.h"
-#define bankFile "banks.json"
-#define currencyFile "currencies.json"
-#define depTypesFile "depTypes.json"
+#define bankFile "./Dictionaries/banks.json"
+#define currencyFile "./Dictionaries/currencies.json"
+#define depTypesFile "./Dictionaries/depTypes.json"
+#define categoryFile "./Dictionaries/categories.json"
+
 
 map<string, int> Dictionaries::dep_type;
+// запуск python скрипта на старте, который парсит сайт с валютами, он в файл - мы в рантайм
 map<string, double> Dictionaries::currencies;
+// начального списка банков нет, при добавлении счетов будут добавляться и банки
 map<string, int> Dictionaries::bank;
+map<string, int> Dictionaries::categories;
 
-int Dictionaries::addBank(string bankName) {
-	std::fstream bankJson;
-	bankJson.open(bankFile);
-	json banks;
-	bankJson >> banks;
-	if (banks.empty()) {
-		banks["counter"] = 0;
+int Dictionaries::cat_init(User* current_user) {
+	fstream category;
+	category.open(categoryFile);
+	json cats;
+	category >> cats;
+	for (int i = 0; i < cats["counter"]; i++) {
+		categories.insert(make_pair(cats[to_string(i)], i));
 	}
-	banks["bank_list"][bankName] = banks["counter"] + 1;
-	banks["counter"] += 1;
-	// need to check if this command override file, because it have to
+	map <string, int>::iterator it;
+	if (current_user->get_cats().size() != 0) {
+		for (it = current_user->get_cats().begin(); it != current_user->get_cats().end(); it++) {
+			categories.insert(make_pair((*it).first, (*it).second));
+		}
+	}
+	return 0;
+}
+
+int Dictionaries::banksInit() {
+	fstream bankJson;
+	bankJson.open(bankFile);
+	if (bankJson.peek()== std::ifstream::traits_type::eof()){}
+	return 0;
+}
+
+/// in json: id - bankname; in map: bankname - id
+int Dictionaries::addBank(string bankName) {
+	fstream bankJson;
+	json banks;
+	// if dictionary isn't initialized
+	if (bank.size() == 0) {
+		bankJson.open(bankFile);
+		//if file with banks list is empty
+		if (bankJson.peek() == ifstream::traits_type::eof()) {
+			bank.insert(make_pair(bankName, 0));
+			banks["counter"] = 1;
+			banks["0"] = bankName;
+		}
+		// if file with banks list isn't empty
+		else {
+			bankJson >> banks;
+			for (int i = 0; i < banks["counter"]; i++) {
+				bank.insert(make_pair(banks[to_string(i)],i));
+			}
+			bank.insert(make_pair(bankName, banks["counter"]-1));
+			banks["counter"] += 1;
+		}
+	}
+	//write to file
 	bankJson << banks;
 	bankJson.close();
-	return 1;
+	return 0;
 }
 
 int Dictionaries::addCurrency(string Currency, double value) {
@@ -150,5 +192,16 @@ string Dictionaries::getDepType(int type) {
 			return  it->first;
 	}
 	return "";
+}
+
+string Dictionaries::get_cat(int cat)
+{
+	map<string, int>::iterator it=categories.begin();
+	while (it != categories.end()) {
+		if (it->second == cat) {
+			return it->first;
+		}
+	}
+	return string();
 }
 
