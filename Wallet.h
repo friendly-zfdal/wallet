@@ -12,8 +12,9 @@ public:
 	Wallet();
 	static User* current_user;
 	static int user_counter;
+	static string last_login;
 	 //save settings
-	int save_wallet();
+	int static save_wallet();
 
 
 };

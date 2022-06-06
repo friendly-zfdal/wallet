@@ -42,6 +42,8 @@ public:
 	void static trans_edit(User* cur);
 	void static trans_delete(User* cur);
 	static Transaction* trans_select(User* cur);
+	static bool compTrans(Transaction* a, Transaction* b);
+	static void data_gather(int months);
 
 
 	

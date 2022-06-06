@@ -6,7 +6,6 @@ string Transaction::get_time() {
 	// current date/time based on current system
 	time_t now = time(0);
 
-	cout << "Number of sec since January 1,1970 is:: " << now << endl;
 
 	tm* ltm = localtime(&now);
 	string current_date;
@@ -45,40 +44,11 @@ Transaction::Transaction(string date, int type, double amount, string category, 
 	this->output_acc_type = output_acc_type;
 	this->input_acc = input_acc;
 	this->input_acc_type = input_acc_type;
-	transactions.push_back(this);
-}
-
-int Transaction::Transaction_for_Stock(int type, double amount, string comment)
-{
-	//type 2 - buy 1 - sell;
-	vector<Card*>::iterator it = Wallet::current_user->get_accounts()->begin();
-	for (it; it != Wallet::current_user->get_accounts()->end(); it++) {
-		if ((*it)->dep_type == 2)
-			break;
-	}
-	//buy
-	if (type == 2) {
-		(*it)->dec(amount);
-		string input_acc = "stock_buy";
-		Transaction(get_time(), type, amount, Dictionaries::get_cat(21), comment, (*it)->card_id, Dictionaries::getDepType((*it)->dep_type), input_acc,input_acc);
-
-	}
-	//sell
-	else if (type == 1) {
-		(*it)->add(amount);
-		string output_acc = "stock_sell";
-		Transaction(get_time(), type, amount, Dictionaries::get_cat(21), comment, output_acc, output_acc, (*it)->card_id, Dictionaries::getDepType((*it)->dep_type));
-	}
-
-
 	
-	
-	return 0;
 }
-
 // non-classic comparator
 // false values will be returned for sorting in descending order
-bool compTrans(Transaction* a, Transaction* b) {
+bool Transaction::compTrans(Transaction* a, Transaction* b) {
 	string dateA = a->get_date();
 	string dateB = b->get_date();
 	vector<int> el_a;
@@ -98,7 +68,7 @@ bool compTrans(Transaction* a, Transaction* b) {
 
 	for (int i = 0; i < dateB.length(); i++) {
 		if (dateB[i] != '/')
-			buff += dateA[i];
+			buff += dateB[i];
 		else {
 			el_b.push_back(stoi(buff));
 			buff = "";
@@ -108,16 +78,151 @@ bool compTrans(Transaction* a, Transaction* b) {
 	buff = "";
 	//compare years
 	if (el_a[2] < el_b[2])
+		/*return true;*/
 		return false;
 	//compare months
-	else if (el_a[3] == el_b[3] && el_a[0] < el_b[0])
+	else if (el_a[2] == el_b[2] && el_a[0] < el_b[0])
+		/*return true;*/
 		return false;
 	//compare days
-	else if (el_a[3] == el_b[3] && el_a[0] == el_b[0] && el_a[1] < el_b[1])
+	else if (el_a[2] == el_b[2] && el_a[0] == el_b[0] && el_a[1] < el_b[1])
+		/*return true;*/
 		return false;
-
+	//just for descending order comparator
+	else if (el_a[2] == el_b[2] && el_a[0] == el_b[0] && el_a[1] == el_b[1])
+		return false;
 	return true;
 }
+
+bool data_cmp(vector<int> data1, vector<int> data2) {
+	//compare years
+	if (data1[2] < data2[2])
+		return true;
+
+	//compare months
+	else if (data1[2] == data2[2] && data1[0] < data2[0])
+		return true;
+
+	//compare days
+	else if (data1[2] == data2[2] && data1[0] == data2[0] && data1[1] < data2[1])
+		return true;
+
+	//just for descending order comparator
+	else if (data1[2] == data2[2] && data1[0] == data2[0] && data1[1] == data2[1])
+		return true;
+	
+	return false;
+}
+
+void Transaction::data_gather(int months)
+{
+	vector<Transaction*>::iterator it = transactions.begin();
+	string cur_date = Transaction::get_time();
+	vector<int> el_a;
+	vector<int> el_b;
+	string buff;
+	//split dates to vector
+	for (int i = 0; i < cur_date.length(); i++) {
+		if (cur_date[i] != '/')
+			buff += cur_date[i];
+		else {
+			el_a.push_back(stoi(buff));
+			buff = "";
+		}
+	}
+	el_a.push_back(stoi(buff));
+	buff = "";
+	
+	el_a[0] -= 6;
+	if (el_a[0] <= 0) {
+		el_a[0] = 12 - el_a[0];
+		el_a[2] = el_a[2] - 1;
+	}
+	string min_date = to_string(el_a[0]) + "/" + to_string(el_a[1]) + "/" + to_string(el_a[2]);
+	
+	string temp_date = "";
+	json raw_info;
+	raw_info["counter"] = 0;
+	double income = 0;
+	double expense = 0;
+	map<int, double> data;
+	map<int, double>::iterator map_it;
+	while (it != transactions.end()) {
+		temp_date = (*it)->date;
+		for (int i = 0; i < temp_date.length(); i++) {
+			if (temp_date[i] != '/')
+				buff += temp_date[i];
+			else {
+				el_b.push_back(stoi(buff));
+				buff = "";
+			}
+		}
+		el_b.push_back(stoi(buff));
+		buff = "";
+		if (data_cmp(el_a, el_b)) {
+			// income/expense calculations
+			if ((*it)->type == 1) {
+				income += (*it)->amount;
+			}
+			else { expense += (*it)->amount; }
+			
+			//gathering only expense trans by categories
+			if ((*it)->type == 2) {
+				map_it = data.find(stoi((*it)->category));
+				if (map_it != data.end()) {
+					map_it->second = map_it->second + (*it)->amount;
+				}
+				else {
+					data.insert(make_pair(stoi((*it)->category), (*it)->amount));
+				}
+			}
+		}
+		
+		// date of transactions is earlier than "current date - period in months"
+		it++;
+	}
+
+	if (data.empty()) {
+		cout << "There is no suitable transactions" << endl;
+			return;
+	}
+
+	fstream gathered_data;
+	gathered_data.open(trans_dir + "graphics.txt");
+	for(map_it=data.begin();map_it!=data.end();)
+}
+
+int Transaction::Transaction_for_Stock(int type, double amount, string comment)
+{
+	//type 2 - buy 1 - sell;
+	vector<Card*>::iterator it = Wallet::current_user->get_accounts()->begin();
+	for (it; it != Wallet::current_user->get_accounts()->end(); it++) {
+		if ((*it)->dep_type == 2)
+			break;
+	}
+	Transaction* trans;
+	//buy
+	if (type == 2) {
+		(*it)->dec(amount);
+		string input_acc = "stock_buy";
+		trans= new Transaction(get_time(), type, amount, "21", comment, (*it)->card_id, Dictionaries::getDepType((*it)->dep_type), input_acc, input_acc);
+		std::sort(transactions.begin(), transactions.end(), compTrans);
+	}
+	//sell
+	else if (type == 1) {
+		(*it)->add(amount);
+		string output_acc = "stock_sell";
+		trans = new Transaction(get_time(), type, amount, "21", comment, output_acc, output_acc, (*it)->card_id, Dictionaries::getDepType((*it)->dep_type));
+		std::sort(transactions.begin(), transactions.end(), compTrans);
+	}
+
+
+	
+	
+	return 0;
+}
+
+
 
 int Transaction::load_trans(User* current_user, string pin) {
 	string userTrans = trans_dir + Authorization::loginToASCII(current_user->get_login()) + "Trans.json";
@@ -141,8 +246,18 @@ int Transaction::load_trans(User* current_user, string pin) {
 	for (auto it = userTransactions.begin(); it != userTransactions.end();it++) {
 		if (it.key() == "counter")
 			continue;
-		Transaction(userTransactions[it.key()]["date"], userTransactions[it.key()]["type"], userTransactions[it.key()]["amount"], userTransactions[it.key()]["category"], userTransactions[it.key()]["comment"], userTransactions[it.key()]["ouptut_acc"], userTransactions[it.key()]["output_acc_type"],
+		userTransactions[it.key()]["date"];
+		userTransactions[it.key()]["type"];
+		userTransactions[it.key()]["amount"];
+		userTransactions[it.key()]["category"];
+		userTransactions[it.key()]["comment"];
+		userTransactions[it.key()]["ouptut_acc"];
+		userTransactions[it.key()]["output_acc_type"];
+		userTransactions[it.key()]["input_acc"];
+		userTransactions[it.key()]["input_acc_type"];
+		Transaction* trans= new Transaction(userTransactions[it.key()]["date"], userTransactions[it.key()]["type"], userTransactions[it.key()]["amount"], userTransactions[it.key()]["category"], userTransactions[it.key()]["comment"], userTransactions[it.key()]["output_acc"], userTransactions[it.key()]["output_acc_type"],
 			userTransactions[it.key()]["input_acc"], userTransactions[it.key()]["input_acc_type"]);
+		transactions.push_back(trans);
 	}
 	//sort after all transactions have been added
 	std::sort(transactions.begin(), transactions.end(), compTrans);
@@ -159,16 +274,16 @@ void Transaction::save_trans(User* cur)
 	int counter=0;
 	//running through preloaded transactions vector
 	for (it = transactions.begin(); it != transactions.end(); it++) {
-
-	trans_json[to_string(counter)]["date"] = (*it)->date;
-	trans_json[to_string(counter)]["amount"] = (*it)->amount;
-	trans_json[to_string(counter)]["category"] = (*it)->category;
-	trans_json[to_string(counter)]["comment"] = (*it)->comment;
-	trans_json[to_string(counter)]["output_acc"] = (*it)->output_acc;
-	trans_json[to_string(counter)]["output_acc"] = (*it)->output_acc_type;
-	trans_json[to_string(counter)]["input_acc"] = (*it)->input_acc;
-	trans_json[to_string(counter)]["input_acc_type"] = (*it)->input_acc_type;
-	counter++;
+		trans_json[to_string(counter)]["type"] = (*it)->type;
+		trans_json[to_string(counter)]["date"] = (*it)->date;
+		trans_json[to_string(counter)]["amount"] = (*it)->amount;
+		trans_json[to_string(counter)]["category"] = (*it)->category;
+		trans_json[to_string(counter)]["comment"] = (*it)->comment;
+		trans_json[to_string(counter)]["output_acc"] = (*it)->output_acc;
+		trans_json[to_string(counter)]["output_acc_type"] = (*it)->output_acc_type;
+		trans_json[to_string(counter)]["input_acc"] = (*it)->input_acc;
+		trans_json[to_string(counter)]["input_acc_type"] = (*it)->input_acc_type;
+		counter++;
 	}
 	trans_json["counter"] = counter;
 	test << trans_json;
@@ -181,7 +296,7 @@ void Transaction::save_trans(User* cur)
 }
 
 
-// привязка Usera к какой-то глобал переменной либо в настройках, чтобы можно было использовать сущность текущего юзера
+
 Transaction::Transaction(User* current_user) {
 
 	if (transactions.size() == 0) {
@@ -197,17 +312,17 @@ Transaction::Transaction(User* current_user) {
 	int counter;
 	//if the output account of the transaction is current user's account then ask to select the correct one
 	if (answer == "1") {
-		counter = 1;
+		counter = 0;
 		cout << "Select one of your accounts:" << endl;
 		for (auto it = current_user->get_accounts()->begin(); it != current_user->get_accounts()->end(); it++) {
-			cout << counter << ") " << (*it)->card_id << " - " << Dictionaries::getDepType((*it)->dep_type) << endl;
+			cout << to_string(counter+1) + ") " + (*it)->card_id + " - " + (*it)->get_card_info() + " - " << Dictionaries::getDepType((*it)->dep_type) << endl;
 			counter++;
 		}
 		cin >> answer;
 		auto it = current_user->get_accounts()->begin();
 		for (int i = 1; i < std::stoi(answer); i++) { ++it;}
 		 this->output_acc= (*it)->card_id;
-		 this->output_acc_type = (*it)->dep_type;
+		 this->output_acc_type = to_string((*it)->dep_type);
 	}
 
 	
@@ -220,6 +335,9 @@ Transaction::Transaction(User* current_user) {
 	cin >> answer;
 	//stod converts string to double
 	this->amount = std::stod(answer);
+	double rate = Dictionaries::currency_select();
+	//convert amount from any currency to USD $
+	this->amount = this->amount * rate;
 	
 	cout << "\nWhere was the money transferred to?\n 1) To one of your accounts\n 2) To another User's account" << endl;
 	cin >> answer;
@@ -237,14 +355,14 @@ Transaction::Transaction(User* current_user) {
 		auto it = current_user->get_accounts()->begin();
 		for (int i = 1; i < std::stoi(answer); i++) { it++; }
 		this->input_acc = (*it)->card_id;
-		this->input_acc_type = (*it)->dep_type;
+		this->input_acc_type = to_string((*it)->dep_type);
 	}
 
 	////else to write it manually
 	else {
 		// now it's just a plug because we're not monitoring other users accounts
-		this->output_acc = "Another user's account";
-		this->output_acc_type = "0";
+		this->input_acc = "Another user's account";
+		this->input_acc_type = "0";
 		//cout << "Please, enter transcation's output account manually:" << endl;
 		//cin >> answer;
 		//this->input_acc = answer;
@@ -260,14 +378,13 @@ Transaction::Transaction(User* current_user) {
 		//this->input_acc_type = answer;
 	}
 
-	//category selection plug
-	cout << "Select category of the transaction:";
-	
-	cin >> answer;
-	this->category = answer;
+	//category selection
+	this->category=to_string(Dictionaries::cat_select(Wallet::current_user));
+
 
 	cout << "Do you want to add any comment for this transaction? If no - just press Enter:" << endl;
-	cin >> answer;
+	cin.ignore(1, '\n');
+	getline(cin, answer);
 	this->comment = answer;
 
 	if (current_user->check_account(this->input_acc)) {
@@ -275,6 +392,7 @@ Transaction::Transaction(User* current_user) {
 		for (auto it = current_user->get_accounts()->begin(); it != current_user->get_accounts()->end(); it++) {
 			if ((*it)->card_id == input_acc) {
 				(*it)->money_value += amount;
+				this->type = 1;
 				break;
 			}
 		}
@@ -285,6 +403,7 @@ Transaction::Transaction(User* current_user) {
 		for (auto it = current_user->get_accounts()->begin(); it != current_user->get_accounts()->end(); it++) {
 			if ((*it)->card_id == output_acc) {
 				(*it)->money_value -= amount;
+				this->type = 2;
 				break;
 			}
 		}
@@ -297,13 +416,14 @@ Transaction::Transaction(User* current_user) {
 	}
 	else {
 		cout << "\nWrite it manually in format MM/DD/YYYY HH/MM in 24-hour clock format" << endl;
+		cin.ignore(1, '\n');
 		getline(cin, answer);
 		this->date = answer;
 	}
 
 	//just adding new trans to vector in runtime instead of writing each new one to the transactions file
-	transactions.push_back(this);
-	std::sort(transactions.begin(), transactions.end(), compTrans);
+//	transactions.push_back(this);
+	//std::sort(transactions.begin(), transactions.end(), compTrans);
 
 	//std::ofstream test;
 	//test.open(userTrans);
@@ -342,7 +462,13 @@ Transaction* Transaction::trans_select(User* current_user) {
 	int counter = 0;
 	int answer;
 	while (it != transactions.end()) {
-		if (counter == 5) {
+		//list each transaction
+		cout << to_string(counter + 1) + ") date:" + (*it)->date + ";output account:" + (*it)->output_acc + " - " + Dictionaries::getDepType(stoi((*it)->output_acc_type)) + "; input account:" + (*it)->input_acc + " - " + Dictionaries::getDepType(stoi((*it)->input_acc_type)) +
+			"; amount" + to_string((*it)->amount) + "; category:" +/*should be cat presented as phrase*/(*it)->category + "; comment:" + (*it)->comment << endl;
+		counter++;
+		it++;
+
+		if (counter == 5 || it==transactions.end()) {
 			cout << "Select one of the listed transactions on this page, press '6' to move to the next page or '7' to exit selection menu:";
 			
 			cin >> answer;
@@ -358,111 +484,116 @@ Transaction* Transaction::trans_select(User* current_user) {
 			else break;
 		}
 
-		//list each transaction
-		cout << counter + 1 + ") date:" + (*it)->date + ";output account:" + (*it)->output_acc + " - " + Dictionaries::getDepType(stoi((*it)->output_acc_type)) + "; input account:" + (*it)->input_acc + " - " + Dictionaries::getDepType(stoi((*it)->input_acc_type)) +
-			"; amount" + to_string((*it)->amount) + "; category:" +/*should be cat presented as phrase*/(*it)->category + "; comment:" + (*it)->comment << endl;
-
-		counter++;
-		it++;
 	}
+
+
+	//next page of transactions
+	if (answer == 6) {
+		cout << "No more transactions" << endl;
+		return NULL;
+	}
+
 
 	//select specific transaction and return it
-	switch (answer) {
-	case 1:
-		return *it -= 5;
-	case 2:
-		return *it -= 4;
-	case 3:
-		return *it -= 3;
-	case 4:
-		return *it -= 2;
-	case 5:
-		return *it -= 1;
-	case 6:
-		return NULL;
-	default:
-		cout << "The input is incorrect" << endl;
-		return NULL;
-	}
+	advance(it, -(counter - answer + 1));
+	return *it;
 
 
-
-	return NULL;
 }
 
 void Transaction::trans_edit(User* current_user) {
 	Transaction* trans=trans_select(current_user);
+	if (trans == NULL) {
+		return;
+	}
+	//vector<Transaction*>::iterator it;
+	
+
 	cout << "What do you want to change?\n1)date\n2)output acc\n3)input acc\n4)amount\n5)category\n6)comment" << endl;
 	int answer;
 	cin >> answer;
-	cout << "Enter the new value:";
+	
 	string new_value;
 	switch (answer) {
-		case 1:
-			cin >> new_value;
-			trans->date = new_value;
-			break;
-		case 2:
-			cin >> new_value;
-			trans->output_acc = new_value;
-			if (current_user->check_account(new_value)) {
-				vector<Card*> accounts = *((*current_user).get_accounts());
-				vector<Card*>::iterator it;
-				
-				for (it = accounts.begin(); it != accounts.end(); it++) {
-					if ((*it)->account_id == new_value) {
-						trans->output_acc_type = (*it)->dep_type;
-					}
-				}
-			}
-			break;
-		case 3:
-			cin >> new_value;
-			trans->input_acc = new_value;
-			if (current_user->check_account(new_value)) {
-				vector<Card*> accounts = *((*current_user).get_accounts());
-				vector<Card*>::iterator it;
-
-				for (it = accounts.begin(); it != accounts.end(); it++) {
-					if ((*it)->account_id == new_value) {
-						trans->input_acc_type = (*it)->dep_type;
-					}
-				}
-			}
-			break;
-		case 4:
-			cin >> new_value;
-			trans->amount = stod(new_value);
-			break;
-		case 5: {
-			map<string, int> cats = current_user->get_cats();
-			map<string, int>::iterator map_it;
-			int counter = 0;
-			//print cats
-			for (map_it = cats.begin(); map_it != cats.end(); map_it++) {
-				cout << counter + 1 + ") " + map_it->first << endl;
+	case 1:
+		cout << "Enter the new value (in MM/DD/YYYY format):";
+		cin >> new_value;
+		trans->date = new_value;
+		std::sort(transactions.begin(), transactions.end(), compTrans);
+		break;
+	case 2: {
+		cout << "New output account for this transaction will be:\n1) Your account\n2) Another User's account" << endl;
+		string answer;
+		cin >> answer;
+		int counter;
+		//if the output account of the transaction is current user's account then ask to select the correct one
+		if (answer == "1") {
+			counter = 0;
+			cout << "Select one of your accounts:" << endl;
+			for (auto it = current_user->get_accounts()->begin(); it != current_user->get_accounts()->end(); it++) {
+				cout << to_string(counter + 1) + ") " + (*it)->card_id + " - " + (*it)->get_card_info() + " - " << Dictionaries::getDepType((*it)->dep_type) << endl;
 				counter++;
 			}
-			cin >> new_value;
-			//
-			for (map_it = cats.begin(); map_it != cats.end(); map_it++) {
-				if (counter == (stoi(new_value) - 1)) {
-					trans->category = map_it->second;
-					break;
-				}
-				counter++;
-			}
+			cin >> answer;
+			auto it = current_user->get_accounts()->begin();
+			for (int i = 1; i < std::stoi(answer); i++) { ++it; }
+			trans->output_acc = (*it)->card_id;
+			trans->output_acc_type = to_string((*it)->dep_type);
 		}
-			break;
-		case 6:
-			cin.ignore(1, '\n');
-			getline(cin, new_value);
-			trans->comment = new_value;
-			break;
+
+
+		else {//just a plug because we're not monitoring other users accounts
+			trans->output_acc = "Another user's account";
+			trans->output_acc_type = "0";
+		}
 	}
+		  break;
+	case 3:
+	{
+		cout << "New input account for this transaction will be:\n1) Your account\n2) Another User's account" << endl;
+		string answer;
+		cin >> answer;
+		int counter;
+		//if the output account of the transaction is current user's account then ask to select the correct one
+		if (answer == "1") {
+			counter = 0;
+			cout << "Select one of your accounts:" << endl;
+			for (auto it = current_user->get_accounts()->begin(); it != current_user->get_accounts()->end(); it++) {
+				cout << to_string(counter + 1) + ") " + (*it)->card_id + " - " + (*it)->get_card_info() + " - " << Dictionaries::getDepType((*it)->dep_type) << endl;
+				counter++;
+			}
+			cin >> answer;
+			auto it = current_user->get_accounts()->begin();
+			for (int i = 1; i < std::stoi(answer); i++) { ++it; }
+			trans->input_acc = (*it)->card_id;
+			trans->input_acc_type = to_string((*it)->dep_type);
+		}
 
 
-
+		else {//just a plug because we're not monitoring other users accounts
+			trans->input_acc = "Another user's account";
+			trans->input_acc_type = "0";
+		}
+	}
+	break;
+	case 4:
+		cout << "Enter the new value in USD ($):";
+		cin >> new_value;
+		trans->amount = stod(new_value);
+		break;
+	case 5:
+		trans->category = to_string(Dictionaries::cat_select(Wallet::current_user));
+		break;
+	case 6:
+		cout << "Enter new comment for this transaction" << endl;
+		cin.ignore(1, '\n');
+		getline(cin, new_value);
+		trans->comment = new_value;
+		break;
+	default:
+		cout << "incorrect input" << endl;
+		return;
+	}
 }
 
 void Transaction::trans_delete(User* current_user) {

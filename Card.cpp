@@ -21,10 +21,12 @@ void Card::dec(double value) {
 	this->money_value = this->money_value - value;
 }
 
+
+
 double Card::get_value() {
 	return this->money_value;
 }
 
 string Card::get_card_info() {
-	return this->alias + " " + to_string(this->money_value) + "$\n";
+	return this->alias + " - " + to_string(this->money_value) + "$";
 }

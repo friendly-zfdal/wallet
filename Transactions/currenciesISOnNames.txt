@@ -1,0 +1,157 @@
+USD:US Dollar
+EUR:Euro
+GBP:British Pound
+INR:Indian Rupee
+AUD:Australian Dollar
+CAD:Canadian Dollar
+SGD:Singapore Dollar
+CHF:Swiss Franc
+MYR:Malaysian Ringgit
+JPY:Japanese Yen
+CNY:Chinese Yuan Renminbi
+NZD:New Zealand Dollar
+THB:Thai Baht
+HUF:Hungarian Forint
+AED:Emirati Dirham
+HKD:Hong Kong Dollar
+MXN:Mexican Peso
+ZAR:South African Rand
+PHP:Philippine Peso
+SEK:Swedish Krona
+IDR:Indonesian Rupiah
+BRL:Brazilian Real
+SAR:Saudi Arabian Riyal
+TRY:Turkish Lira
+KES:Kenyan Shilling
+KRW:South Korean Won
+EGP:Egyptian Pound
+IQD:Iraqi Dinar
+NOK:Norwegian Krone
+KWD:Kuwaiti Dinar
+RUB:Russian Ruble
+DKK:Danish Krone
+PKR:Pakistani Rupee
+ILS:Israeli Shekel
+PLN:Polish Zloty
+QAR:Qatari Riyal
+OMR:Omani Rial
+COP:Colombian Peso
+CLP:Chilean Peso
+TWD:Taiwan New Dollar
+ARS:Argentine Peso
+CZK:Czech Koruna
+VND:Vietnamese Dong
+MAD:Moroccan Dirham
+JOD:Jordanian Dinar
+BHD:Bahraini Dinar
+XOF:CFA Franc
+LKR:Sri Lankan Rupee
+UAH:Ukrainian Hryvnia
+NGN:Nigerian Naira
+TND:Tunisian Dinar
+UGX:Ugandan Shilling
+RON:Romanian Leu
+BDT:Bangladeshi Taka
+PEN:Peruvian Sol
+GEL:Georgian Lari
+XAF:Central African CFA Franc BEAC
+FJD:Fijian Dollar
+VES:Venezuelan Bolívar
+BYN:Belarusian Ruble
+HRK:Croatian Kuna
+UZS:Uzbekistani Som
+BGN:Bulgarian Lev
+DZD:Algerian Dinar
+IRR:Iranian Rial
+DOP:Dominican Peso
+ISK:Icelandic Krona
+CRC:Costa Rican Colon
+SYP:Syrian Pound
+JMD:Jamaican Dollar
+LYD:Libyan Dinar
+GHS:Ghanaian Cedi
+MUR:Mauritian Rupee
+AOA:Angolan Kwanza
+UYU:Uruguayan Peso
+AFN:Afghan Afghani
+LBP:Lebanese Pound
+XPF:CFP Franc
+TTD:Trinidadian Dollar
+TZS:Tanzanian Shilling
+ALL:Albanian Lek
+XCD:East Caribbean Dollar
+GTQ:Guatemalan Quetzal
+NPR:Nepalese Rupee
+BOB:Bolivian Bolíviano
+BBD:Barbadian or Bajan Dollar
+LAK:Lao Kip
+BND:Bruneian Dollar
+BWP:Botswana Pula
+HNL:Honduran Lempira
+PYG:Paraguayan Guarani
+ETB:Ethiopian Birr
+NAD:Namibian Dollar
+PGK:Papua New Guinean Kina
+SDG:Sudanese Pound
+MOP:Macau Pataca
+BMD:Bermudian Dollar
+NIO:Nicaraguan Cordoba
+BAM:Bosnian Convertible Mark
+KZT:Kazakhstani Tenge
+PAB:Panamanian Balboa
+GYD:Guyanese Dollar
+YER:Yemeni Rial
+MGA:Malagasy Ariary
+KYD:Caymanian Dollar
+MZN:Mozambican Metical
+RSD:Serbian Dinar
+SCR:Seychellois Rupee
+AMD:Armenian Dram
+AZN:Azerbaijan Manat
+SBD:Solomon Islander Dollar
+SLL:Sierra Leonean Leone
+TOP:Tongan Pa'anga
+BZD:Belizean Dollar
+GMD:Gambian Dalasi
+MWK:Malawian Kwacha
+BIF:Burundian Franc
+HTG:Haitian Gourde
+SOS:Somali Shilling
+GNF:Guinean Franc
+MNT:Mongolian Tughrik
+MVR:Maldivian Rufiyaa
+CDF:Congolese Franc
+STN:Sao Tomean Dobra
+TJS:Tajikistani Somoni
+KGS:Kyrgyzstani Som
+LRD:Liberian Dollar
+LSL:Basotho Loti
+MMK:Burmese Kyat
+GIP:Gibraltar Pound
+MDL:Moldovan Leu
+CUP:Cuban Peso
+KHR:Cambodian Riel
+MKD:Macedonian Denar
+VUV:Ni-Vanuatu Vatu
+ANG:Dutch Guilder
+MRU:Mauritanian Ouguiya
+SZL:Swazi Lilangeni
+CVE:Cape Verdean Escudo
+SRD:Surinamese Dollar
+BSD:Bahamian Dollar
+XDR:IMF Special Drawing Rights
+RWF:Rwandan Franc
+AWG:Aruban or Dutch Guilder
+BTN:Bhutanese Ngultrum
+DJF:Djiboutian Franc
+KMF:Comorian Franc
+ERN:Eritrean Nakfa
+FKP:Falkland Island Pound
+SHP:Saint Helenian Pound
+WST:Samoan Tala
+JEP:Jersey Pound
+TMT:Turkmenistani Manat
+GGP:Guernsey Pound
+IMP:Isle of Man Pound
+TVD:Tuvaluan Dollar
+ZMW:Zambian Kwacha

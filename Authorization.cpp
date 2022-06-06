@@ -43,10 +43,11 @@ int Authorization::signIn(string login, string pin)
     }
     //load user's transactions if user exists and has provided correct pin
     if (Wallet::current_user != NULL) {
+        Dictionaries::cat_init(Wallet::current_user);
         Transaction::load_trans(Wallet::current_user, pin);
     }
     else return 0;
-    Encryption::pin_encrypt(&(Wallet::current_user->pin));
+    //Encryption::pin_encrypt(&(Wallet::current_user->pin));
     filename = "";
     files.clear();
 
@@ -62,9 +63,9 @@ int Authorization::signUp(string login, string id, string birth_date, string nam
     User* user = new User(id, name, birth_date, pin, login);
     Wallet::current_user = user;
     //there we'll use pin entered by user in sign up form
-    user->save_user(loginToASCII(user->get_login()), pin);
-    Dictionaries::cat_init(user);
-    Dictionaries::depTypesInit();
+    user->save_user(loginToASCII(user->get_login()));
+    Dictionaries::cat_init(Wallet::current_user);
+    Dictionaries::depTypesInit(Wallet::current_user);
     //banks init
     
     return 1;

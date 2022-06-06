@@ -50,8 +50,8 @@ int User::add_account(string card_id, int bank_id, string end_date, double money
 	return 0;
 }
 
-//save user account values to json file with default filename
-int User::save_user(string login_ASCII, string pin) {
+//save user account values to json file "user_name.json" filename
+int User::save_user(string login_ASCII) {
 	json user_info;
 	user_info["id"] = id;
 	user_info["login"] = login;
@@ -59,6 +59,8 @@ int User::save_user(string login_ASCII, string pin) {
 	user_info["birth_date"] = birth_date;
 	//pin will be encrypted with pid which will be lost after closing the program, so we need to decrypt it before closing the program
 	user_info["pin"] = Encryption::pin_decrypt(&(this->pin));
+	//for sign up saving case (kostyl zhestki)
+	Encryption::pin_encrypt(&(this->pin));
 	user_info["accounts_list"];
 	vector<Card*>::iterator it;
 	int counter = 0;
@@ -96,7 +98,7 @@ int User::save_user(string login_ASCII, string pin) {
 	user_file << user_info << endl;
 	user_file.close();
 	//encryption after saving
-	Encryption::file_encrypt(user_directory + login_ASCII + ".json", pin);
+	Encryption::file_encrypt(user_directory + login_ASCII + ".json", user_info["pin"]);
 	return 0;
 }
 
@@ -106,15 +108,24 @@ User* User::load_user(string filename, string pin) {
 	Encryption::file_decrypt(filename, pin);
 	std::ifstream user_file(filename);
 	json user_json;
-	user_file >> user_json;
+	
+	try {
+		user_file >> user_json;
+	}
+	catch(json::exception) {
+		cout << "Password is incorrect";
+		Encryption::file_encrypt(filename, pin);
+		return NULL;
+	}
 	map<string, int>::iterator it;
 	vector<Card*>* cards=new vector<Card*>;
 
-	//encrypting file after loading to json
+	//encrypting file back after loading to json
 	Encryption::file_encrypt(filename, pin);
 
 	//check pin
 	if (pin != user_json["pin"]) {
+		cout << "provided pin is incorrect";
 		return NULL;
 	}
 
@@ -139,7 +150,7 @@ User* User::load_user(string filename, string pin) {
 	for (auto& [key, val] : user_json["dep_types"].items()) {
 		if (key == "counter")
 			continue;
-		current->categories.insert(make_pair(val, stoi(key)));
+		current->dep_types.insert(make_pair(val, stoi(key)));
 	}
 
 
@@ -147,6 +158,11 @@ User* User::load_user(string filename, string pin) {
 
 	//return loaded user
 	return current;
+}
+
+map<string, int>* User::get_types()
+{
+	return &(this->dep_types);
 }
 
 
@@ -161,12 +177,28 @@ int User::check_account(string acc_id) {
 
 }
 
+int User::remove_acc(vector<Card*>::iterator acc)
+{
+	this->accounts.erase(acc);
+	return 0;
+}
+
 int User::changeLogin() {
 	string cur_login = this->login;
 	cout << "Please type your new login and press Enter" << endl;
 	string login;
 	cin >> login;
 	this->login = login;
+
+	//delete user file with previous login (the new one will be created and saved during app closing)
+	// have to release func for login transformation there due to include loop :(
+	string temp;
+	for (int i = 0; i < cur_login.length(); i++) {
+		temp+= to_string((int)cur_login[i]);
+	}
+	std::filesystem::remove("./Users/" + temp + ".json");
+	/////////////////////////////////////////////////////////////
+
 	cout << "Your login has been successfully changed from " << cur_login << " to " << this->login << endl;
 	return 0;
 }
@@ -200,6 +232,7 @@ int User::changeDate() {
 
 int User::changePin() {
 	string pin = Encryption::pin_decrypt(&(this->pin));
+	Encryption::pin_encrypt(&(this->pin));
 	cout << "Enter your current pin" << endl;
 	string old_pin;
 	string new_pin;
@@ -225,7 +258,7 @@ int User::changePin() {
 
 int User::changeUserProps() {
 	cout << "Which field do you want to change?" << endl;
-	cout << "1) Login\n 2) Name\n 3) Birth date\n 4) Pin code" << endl;
+	cout << "1) Login\n 2) Name\n 3) Birth date\n 4) Pin code\n 5) Back to start page" << endl;
 	int a;
 	cin >> a;
 	switch (a) {
@@ -241,12 +274,43 @@ int User::changeUserProps() {
 		case 4:
 			changePin();
 			break;
+		case 5:
+			break;
 		default:
 			cout << "Incorrect input value" << endl;
 	}
 	return 0;
 }
 
-map<string, int> User::get_cats() {
-	return this->categories;
+map<string, int>* User::get_cats() {
+	return &(this->categories);
 }
+
+
+
+int User::add_cat(string cat)
+{
+	categories.insert(make_pair(cat, categories.size()));
+	
+	return 0;
+}
+
+string User::get_name()
+{
+	return name;
+}
+
+int User::unique_account(string id)
+{
+	//if account with provided id already exists in user's profile then return 0
+	vector<Card*>::iterator it = accounts.begin();
+	while (it != accounts.end()) {
+		if ((*it)->card_id == id)
+			return 0;
+		it++;
+	}
+	//else 1
+	return 1;
+}
+
+

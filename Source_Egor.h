@@ -1,21 +1,17 @@
 #pragma once
-#include <iostream>
-#include <fstream>
-#include <string>
-#include "Wallet.h"
+#ifndef HEADER_H_
+#define HEADER_H_
 
-class Stock {
+class Stock
+{
 public:
-	void static allStock();
-	void static userShares();
-	void static totalValue();
-	void static buy();
-	void static sell();
-	void static mainMenu(void);
-	void static menu();
-	int static main();
-
-
-
-
+	void allStock();
+	void userShares();
+	void totalValue();
+	void buy();
+	void sell();
+	void mainMenu(void);
+	void menu();
 };
+
+#endif HEADER_H_

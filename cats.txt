@@ -1,0 +1,21 @@
+Car (gasoline, washing, repair, spare parts, insurance, parking, technical inspection, taxes, fines, parking)
+Business (taxes, salary, advertising, office and stationery, services)
+Charity, help, gifts
+Household appliances, computer, consumables
+Children (clothing, food, toys, books, babysitting, furniture, services, entertainment)
+Pets (food, pet products, veterinary services)
+Health and beauty (cosmetics, perfumes, beauty salons, sports, medicines, services)
+Mortgages, debts, loans (loan repayment, mortgage repayment, early repayment of debt, interest coverage)
+Apartment and communication (electricity, water, heat, gas, radio, telephone, internet, rent, garbage collection, cable TV, security, concierge)
+Taxes and insurance
+Education (textbooks, stationery, tuition fee, tutor)
+Clothing and accessories (clothes, shoes, accessories, jewelry, dry cleaning, atelier, shoe repair)
+Recreation and entertainment (games, films, books, CDs, magazines, cafes and restaurants, cinema, photo, theater, exhibitions, bowling)
+Meals (staples, delicacies, alcohol, meals at work, school lunches)
+Miscellaneous (official expenses, out of pocket expenses, tips, dues, bank charges, notary, loss of money, delivery of goods)
+Repair and furniture
+Household goods (linen, small appliances, tools, dishes, kitchen utensils, bathroom products, interior items)
+Transport (bus, travel, air, metro, taxi, train)
+Hobby
+Transactions to other accounts
+Cash

@@ -143,7 +143,8 @@ int Encryption::file_encrypt(string filename, string pin)
 	fstream fs;
 	fs.open(filename);
 	string text;
-	fs >> text;
+	//fs >> text;
+	getline(fs, text);
 	fs.close();
 	string output_str;
 	
@@ -199,6 +200,8 @@ string Encryption::pin_decrypt(string* pin) {
 		index_pid = (index_pid + 1) % limit_pid;
 		output_str += output;
 	}
-	
+	// need to test: this one
+	*pin = output_str;
+	//or this
 	return output_str;
 }

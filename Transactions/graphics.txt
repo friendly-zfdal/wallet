@@ -1,0 +1,6 @@
+200
+300
+games(steam, battlenet):0.102
+house(dishes, rent):0.163
+car(parts, oil, gas, fuel):61.22
+kids:0.122

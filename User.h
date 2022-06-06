@@ -16,13 +16,8 @@ using namespace std;
 class User {
 
 private:
-	/// <summary>
-	/// ///////////////////////////////////////////////
-	/// </summary>
+
 	string login;
-	/// <summary>
-	/// //////////////////////////////////////////////
-	/// </summary>
 	string id;
 	string name;
 	string birth_date;
@@ -42,11 +37,16 @@ public:
 	string get_login();
 	~User();
 	int check_account(string);
+	int remove_acc(vector <Card*>::iterator acc);
 	int changeUserProps();
 	string get_id();
 	int add_account(string card_id, int bank_id, string end_date, double money_value, int dep_type, string alias);
 	vector<Card*>* get_accounts();
-	int save_user(string loginASCII, string pin);
+	int save_user(string loginASCII);
 	static User* load_user(string, string);
-	map<string, int> get_cats();
+	map<string, int>* get_types();
+	map<string, int>* get_cats();
+	int add_cat(string cat);
+	string get_name();
+	int unique_account(string id);
 };

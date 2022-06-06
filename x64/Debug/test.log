@@ -1,0 +1,18 @@
+﻿  Authorization.cpp
+  Menu.cpp
+  Source.cpp
+  Source_Egor.cpp
+C:\Users\USER\Downloads\wallet\test\test\Source_Egor.cpp(225,33): warning C4244: аргумент: преобразование "double" в "const _Elem", возможна потеря данных
+          with
+          [
+              _Elem=char
+          ]
+C:\Users\USER\Downloads\wallet\test\test\Source_Egor.cpp(352,14): warning C4244: аргумент: преобразование "long" в "_Elem", возможна потеря данных
+          with
+          [
+              _Elem=char
+          ]
+  Transaction.cpp
+C:\Users\USER\Downloads\wallet\test\test\Transaction.cpp(191,47): error C2110: +: невозможно добавить два указателя
+C:\Users\USER\Downloads\wallet\test\test\Transaction.cpp(193,1): error C2059: синтаксическая ошибка: }
+  Создание кода...
